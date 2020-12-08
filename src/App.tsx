@@ -1,24 +1,26 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import Form from "./Form";
+import GanttGraph from "./GanttGraph";
+
+export type Process = {
+  index: number;
+  name: string;
+  arriveTime: number;
+  burstTime: number;
+  startTime: number;
+  finishTime: number;
+  returnTime: number;
+  waitTime: number;
+};
 
 function App() {
+  const [processes, setProcesses] = useState<Array<Process>>([]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Form processes={processes} setProcesses={setProcesses} />
+      <GanttGraph processes={processes} />
     </div>
   );
 }
