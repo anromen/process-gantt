@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Process } from "./App";
+import { Process } from "../App";
 
 type Props = {
   processes: Array<Process>;
@@ -14,9 +14,6 @@ const Form: React.FC<Props> = ({ processes, setProcesses }) => {
 
   const getPrevFinishTime = (processIndex: number) => {
     const prev = processes.find(({ index }) => index === processIndex - 1);
-
-    console.log("#wtf", processes);
-
     return prev?.finishTime || -1;
   };
   const getStartTime = (process: Process): Process => {
@@ -26,13 +23,22 @@ const Form: React.FC<Props> = ({ processes, setProcesses }) => {
     };
   };
   const getFinishTime = (process: Process): Process => {
-    return { ...process, finishTime: process.startTime + process.burstTime };
+    return {
+      ...process,
+      finishTime: (process.startTime || 0) + process.burstTime,
+    };
   };
   const getReturnTime = (process: Process): Process => {
-    return { ...process, returnTime: process.finishTime - process.arriveTime };
+    return {
+      ...process,
+      returnTime: (process.finishTime || 0) - process.arriveTime,
+    };
   };
   const getWaitTime = (process: Process): Process => {
-    return { ...process, waitTime: process.returnTime - process.burstTime };
+    return {
+      ...process,
+      waitTime: (process.returnTime || 0) - process.burstTime,
+    };
   };
   const calculateProcessValues = (process: Process) => {
     return getWaitTime(getReturnTime(getFinishTime(getStartTime(process))));
@@ -86,10 +92,10 @@ const Form: React.FC<Props> = ({ processes, setProcesses }) => {
             <td>{process.name}</td>
             <td>{process.arriveTime}</td>
             <td>{process.burstTime}</td>
-            <td>{process.startTime}</td>
-            <td>{process.finishTime}</td>
-            <td>{process.returnTime}</td>
-            <td>{process.waitTime}</td>
+            <td>{process.startTime || ""}</td>
+            <td>{process.finishTime || ""}</td>
+            <td>{process.returnTime || ""}</td>
+            <td>{process.waitTime || ""}</td>
           </tr>
         ))}
 

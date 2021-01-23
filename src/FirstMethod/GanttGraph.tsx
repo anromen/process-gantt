@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Process } from "./App";
+import { Process } from "../App";
 
 type Props = {
   processes: Array<Process>;
@@ -11,7 +11,12 @@ const GanttGraph: React.FC<Props> = ({ processes }) => {
   useEffect(() => {
     setMaxValue(
       processes.reduce(
-        (max, process) => (process.finishTime > max ? process.finishTime : max),
+        (max, process) =>
+          process.finishTime
+            ? process.finishTime > max
+              ? process.finishTime
+              : max
+            : max,
         maxValue
       )
     );
@@ -35,9 +40,11 @@ const GanttGraph: React.FC<Props> = ({ processes }) => {
               <td
                 key={`${process.index}-${index}`}
                 className={
-                  index >= process.arriveTime && index < process.startTime
+                  index >= process.arriveTime &&
+                  index < (process.startTime || 0)
                     ? "waiting"
-                    : index >= process.startTime && index < process.finishTime
+                    : index >= (process.startTime || 0) &&
+                      index < (process.finishTime || 0)
                     ? "running"
                     : "normal"
                 }
