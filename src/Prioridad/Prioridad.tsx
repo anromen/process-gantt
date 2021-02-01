@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Process } from "../App";
 import Clock from "./Clock";
 import Form from "./Form";
-import "./SJF.css";
+import "./Prioridad.css";
 import _ from "lodash";
 
 type ProcessNodeType = {
@@ -89,7 +89,7 @@ export class ProcessQueue {
   }
 }
 
-function SJF() {
+function Prioridad() {
   //Status
   const [clock, setClock] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -118,6 +118,9 @@ function SJF() {
 
         //Check if critical section is available
         if (available && clock >= tail.process.arriveTime) {
+          if (tail.process.remainingTime === tail.process.burstTime)
+            process.realValues = { startTime: clock };
+
           tail.process.isOnCriticalSection = true;
           tail.process.remainingTime -= 1;
 
@@ -125,16 +128,41 @@ function SJF() {
 
           if (tail.process.remainingTime === 0) {
             processesQueue.remove();
+
+            const finishTime = clock + 1;
+            const returnTime = finishTime - process.arriveTime;
+            const waitTime = returnTime - process.burstTime;
+
+            process.realValues = {
+              ...process.realValues,
+              finishTime,
+              returnTime,
+              waitTime,
+            };
+
             available = true;
           } else {
             available = false;
           }
         } else if (!isAvailable && clock >= tail.process.arriveTime) {
+          if (tail.process.remainingTime === tail.process.burstTime)
+            process.realValues = { startTime: clock };
+
           tail.process.remainingTime -= 1;
           process.history = { ...process.history, [clock]: "running" };
 
           if (tail.process.remainingTime === 0) {
             processesQueue.remove();
+            const finishTime = clock + 1;
+            const returnTime = finishTime - process.arriveTime;
+            const waitTime = returnTime - process.burstTime;
+
+            process.realValues = {
+              ...process.realValues,
+              finishTime,
+              returnTime,
+              waitTime,
+            };
             available = true;
           }
         }
@@ -192,14 +220,13 @@ function SJF() {
         : new ProcessQueue();
 
       processesQueue.remove();
-
       blocked.push(head.process);
 
       setBlockedProcesses(blocked);
     }
   };
 
-  const sortBySJF = (
+  const sortByPriority = (
     queue: Array<Process>,
     time: number = 0
   ): Array<Process> => {
@@ -211,15 +238,15 @@ function SJF() {
     );
 
     //If is a time window with no process ready find in next time moment
-    if (!processesReady?.length) return sortBySJF(queue, time + 1);
+    if (!processesReady?.length) return sortByPriority(queue, time + 1);
 
     //Current process: ready and with the shortest burst time (if are equal search what arrive first)
     const selected = processesReady.reduce((sel, process) => {
       if (!sel) return process;
 
-      if (process.burstTime < sel.burstTime) return process;
-      if (process.burstTime > sel.burstTime) return sel;
-      if (process.burstTime === sel.burstTime) {
+      if (process.priority < sel.priority) return process;
+      if (process.priority > sel.priority) return sel;
+      if (process.priority === sel.priority) {
         if (process.arriveTime < sel.arriveTime) return process;
         if (process.arriveTime > sel.arriveTime) return sel;
         if (process.arriveTime === sel.arriveTime) {
@@ -244,14 +271,14 @@ function SJF() {
       (process) => process.index !== selected.index
     );
 
-    return [finalProcess, ...sortBySJF(newQueue, finishTime)];
+    return [finalProcess, ...sortByPriority(newQueue, finishTime)];
   };
 
   const sortQueue = async (queue: ProcessQueue): Promise<ProcessQueue> => {
     const sorted = new ProcessQueue();
     const asArray: Array<Process> = queue.map((process) => process);
 
-    Promise.all(sortBySJF(asArray, 0)).then((result) =>
+    Promise.all(sortByPriority(asArray, 0)).then((result) =>
       result.map((process) => sorted.push(process))
     );
 
@@ -294,9 +321,10 @@ function SJF() {
           <Form
             processes={processes}
             setProcesses={setProcesses}
-            processesQueue={processesQueue}
+            processesQueue={noChangeQueue}
             addProcessToQueue={updateQueues}
           />
+
           {/*GRAPH START */}
           {!!noChangeQueue?.length ? (
             <div className="chart-wrapper">
@@ -360,4 +388,4 @@ function SJF() {
   );
 }
 
-export default SJF;
+export default Prioridad;
