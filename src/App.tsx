@@ -3,6 +3,7 @@ import "./App.css";
 import FirstMethod from "./FirstMethod/FirstMethod";
 import Prioridad from "./Prioridad/Prioridad";
 import SJF from "./SJF/SJF";
+import RoundRobin from "./RoundRobin/RoundRobin";
 
 export type Process = {
   index: number;
@@ -11,6 +12,7 @@ export type Process = {
   burstTime: number;
   priority?: number;
   isOnCriticalSection?: boolean;
+  roundTime?: number;
   remainingTime?: number;
   startTime?: number;
   finishTime?: number;
@@ -28,7 +30,8 @@ export type Process = {
 function App() {
   // return <FirstMethod />;
   // return <SJF />;
-  return <Prioridad />;
+  // return <Prioridad />;
+  return <RoundRobin />;
 }
 
 export default App;
