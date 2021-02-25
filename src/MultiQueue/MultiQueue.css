@@ -1,5 +1,6 @@
 .multi-queue {
   display: flex;
+  width: 100%;
 }
 
 .chart-wrapper {
@@ -35,4 +36,82 @@
 
 .normal {
   background-color: transparent;
+}
+
+.data-table {
+  margin: 0 auto;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+.data-table > tr > th,
+.data-table > tr > td {
+  padding: 4px 0;
+  margin: 0;
+  border: 1px solid black;
+}
+
+.data-table__row {
+  width: 115px;
+  margin: 0;
+  justify-self: flex-start;
+  text-align: center;
+}
+
+.add-process-form {
+  width: 500px;
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.add-process-form > label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  font-weight: 700;
+  width: 48%;
+}
+
+.add-process-form > label > input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+
+.add-process-form > button {
+  border-radius: 10px;
+  flex-direction: column;
+  padding: 12px;
+  background-color: rgb(240, 146, 112);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  margin: 8px 0;
+}
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+  margin: 8px 16px;
+  padding: 8px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.25);
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.clock > button {
+  margin: 8px 0;
+  padding: 8px 0;
+  border-radius: 10px;
+  background-color: rgb(235, 154, 224);
+  color: #000;
+  border: none;
+  cursor: pointer;
 }

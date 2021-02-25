@@ -41,7 +41,7 @@ export default function MultiQueue() {
   const [clock, setClock] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isCriticalSectionAvailable, setIsCriticalSectionAvailable] = useState(
-    false
+    true
   );
   const [cuantum, setCuantum] = useState(4);
   const [oldMax, setOldMax] = useState(10);
@@ -90,7 +90,7 @@ export default function MultiQueue() {
       let sjfBlockedTail = sjfBlockedProcesses?.peek() || null;
       let fifoBlockedTail = fifoBlockedProcesses?.peek() || null;
 
-      let available = true;
+      let available = isCriticalSectionAvailable;
       let check = false;
 
       /* ROUND ROBIN BEGIN */
@@ -168,7 +168,7 @@ export default function MultiQueue() {
             : infoProcess.roundTime - 1;
 
           infoProcess.history = { ...infoProcess.history, [clock]: "running" };
-
+          available = false;
           if (infoProcess.remainingTime === 0) {
             roundRobinProcessesQueue.remove();
 
@@ -185,7 +185,9 @@ export default function MultiQueue() {
 
             available = true;
           } else if (infoProcess.roundTime <= 0) {
+            infoProcess.roundTime = cuantum;
             roundRobinBlockCurrentProcess();
+            available = true;
           }
           //Si no se estaba ejecutando
         } else if (infoProcess?.remainingTime > 0) {
@@ -198,6 +200,8 @@ export default function MultiQueue() {
 
           infoProcess.history = { ...infoProcess.history, [clock]: "running" };
 
+          available = false;
+
           if (infoProcess.remainingTime === 0) {
             roundRobinProcessesQueue.remove();
 
@@ -214,9 +218,9 @@ export default function MultiQueue() {
 
             available = true;
           } else if (infoProcess.roundTime <= 0) {
+            infoProcess.roundTime = cuantum;
             roundRobinBlockCurrentProcess();
-          } else {
-            available = false;
+            available = true;
           }
         }
 
@@ -358,6 +362,7 @@ export default function MultiQueue() {
               ...infoProcess.history,
               [clock]: "running",
             };
+            available = false;
 
             if (infoProcess.remainingTime === 0) {
               sjfProcessesQueue.remove();
@@ -387,6 +392,8 @@ export default function MultiQueue() {
               ...infoProcess.history,
               [clock]: "running",
             };
+
+            available = false;
 
             if (infoProcess.remainingTime === 0) {
               sjfProcessesQueue.remove();
@@ -522,6 +529,8 @@ export default function MultiQueue() {
               [clock]: "running",
             };
 
+            available = false;
+
             if (infoProcess.remainingTime <= 0) {
               fifoProcessesQueue.remove();
 
@@ -550,6 +559,8 @@ export default function MultiQueue() {
               ...infoProcess.history,
               [clock]: "running",
             };
+
+            available = false;
 
             if (infoProcess.remainingTime <= 0) {
               fifoProcessesQueue.remove();
@@ -647,6 +658,8 @@ export default function MultiQueue() {
       }
       /* FIFO ENDS */
 
+      console.log("#av", available);
+
       /* CONFIG */
       setIsCriticalSectionAvailable(available);
       tic = setTimeout(() => {
@@ -691,13 +704,13 @@ export default function MultiQueue() {
   return (
     <div className="multi-queue">
       <div className="tables">
-        <div>
+        <div className="clock">
           {clock}
           <button onClick={() => setIsRunning(!isRunning)}>
             {isRunning && "Pausar"}
             {!isRunning && "Iniciar"}
           </button>
-          {isCriticalSectionAvailable ? "available" : "not"}
+          {isCriticalSectionAvailable ? "disponible" : "ocupada"}
           <button onClick={() => handleBlockProcess()}>Bloquear</button>
         </div>
         <form className="add-process-form">
@@ -751,25 +764,25 @@ export default function MultiQueue() {
         <table className="data-table">
           <tr>
             <th>
-              <div className="table-row">Proceso</div>
+              <div className="data-table__row">Proceso</div>
             </th>
             <th>
-              <div className="table-row">T. llegada</div>
+              <div className="data-table__row">T. llegada</div>
             </th>
             <th>
-              <div className="table-row">T. rafaga</div>
+              <div className="data-table__row">T. rafaga</div>
             </th>
             <th>
-              <div className="table-row">T. comienzo</div>
+              <div className="data-table__row">T. comienzo</div>
             </th>
             <th>
-              <div className="table-row">T. final</div>
+              <div className="data-table__row">T. final</div>
             </th>
             <th>
-              <div className="table-row">T. retorno</div>
+              <div className="data-table__row">T. retorno</div>
             </th>
             <th>
-              <div className="table-row">T. espera</div>
+              <div className="data-table__row">T. espera</div>
             </th>
           </tr>
           <tr>
@@ -786,13 +799,21 @@ export default function MultiQueue() {
 
               return (
                 <tr>
-                  <td>{process.name}</td>
-                  <td>{process.arriveTime}</td>
-                  <td>{process.burstTime}</td>
-                  <td>{realValue?.startTime || process.startTime || "0"}</td>
-                  <td>{realValue?.finishTime || process.finishTime || "0"}</td>
-                  <td>{realValue?.returnTime || process.returnTime || "0"}</td>
-                  <td>{realValue?.waitTime || process.waitTime || "0"}</td>
+                  <td className="data-table__row">{process.name}</td>
+                  <td className="data-table__row">{process.arriveTime}</td>
+                  <td className="data-table__row">{process.burstTime}</td>
+                  <td className="data-table__row">
+                    {realValue?.startTime || process.startTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.finishTime || process.finishTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.returnTime || process.returnTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.waitTime || process.waitTime || "0"}
+                  </td>
                 </tr>
               );
             })}
@@ -813,13 +834,21 @@ export default function MultiQueue() {
 
               return (
                 <tr>
-                  <td>{process.name}</td>
-                  <td>{process.arriveTime}</td>
-                  <td>{process.burstTime}</td>
-                  <td>{realValue?.startTime || process.startTime || "0"}</td>
-                  <td>{realValue?.finishTime || process.finishTime || "0"}</td>
-                  <td>{realValue?.returnTime || process.returnTime || "0"}</td>
-                  <td>{realValue?.waitTime || process.waitTime || "0"}</td>
+                  <td className="data-table__row">{process.name}</td>
+                  <td className="data-table__row">{process.arriveTime}</td>
+                  <td className="data-table__row">{process.burstTime}</td>
+                  <td className="data-table__row">
+                    {realValue?.startTime || process.startTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.finishTime || process.finishTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.returnTime || process.returnTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.waitTime || process.waitTime || "0"}
+                  </td>
                 </tr>
               );
             })}
@@ -842,13 +871,21 @@ export default function MultiQueue() {
 
               return (
                 <tr>
-                  <td>{process.name}</td>
-                  <td>{process.arriveTime}</td>
-                  <td>{process.burstTime}</td>
-                  <td>{realValue?.startTime || process.startTime || "0"}</td>
-                  <td>{realValue?.finishTime || process.finishTime || "0"}</td>
-                  <td>{realValue?.returnTime || process.returnTime || "0"}</td>
-                  <td>{realValue?.waitTime || process.waitTime || "0"}</td>
+                  <td className="data-table__row">{process.name}</td>
+                  <td className="data-table__row">{process.arriveTime}</td>
+                  <td className="data-table__row">{process.burstTime}</td>
+                  <td className="data-table__row">
+                    {realValue?.startTime || process.startTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.finishTime || process.finishTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.returnTime || process.returnTime || "0"}
+                  </td>
+                  <td className="data-table__row">
+                    {realValue?.waitTime || process.waitTime || "0"}
+                  </td>
                 </tr>
               );
             })}
@@ -924,15 +961,6 @@ export default function MultiQueue() {
           </table>
         </div>
         {/*GRAPH END */}
-
-        {isRunning && (
-          <button
-            className="block-button"
-            // onClick={() => blockCurrentProcess()}
-          >
-            Bloquear
-          </button>
-        )}
       </div>
     </div>
   );
