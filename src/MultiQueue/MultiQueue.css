@@ -1,0 +1,38 @@
+.multi-queue {
+  display: flex;
+}
+
+.chart-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  overflow-x: auto;
+  margin-top: 64px;
+}
+
+.chart {
+  table-layout: auto;
+}
+
+.chart-number-header {
+  width: 30px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.waiting {
+  background-color: rgb(157, 245, 216);
+}
+
+.running {
+  background-color: rgb(39, 201, 88);
+}
+
+.blocked {
+  background-color: tomato;
+}
+
+.normal {
+  background-color: transparent;
+}
